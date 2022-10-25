@@ -20,8 +20,12 @@ export default class CriadorComandosEventos {
     this.nome = this.formatNameString(value.tipo);
     this.lista = value.lista;
     this.listaConfig = {
-      plural: this.formatPluralString(this.nome),
-      tipoPlural: this.formatPluralString(this.tipo),
+      plural: !value.tipoPlural
+        ? this.formatPluralString(this.nome)
+        : this.formatNameString(value.tipoPlural),
+      tipoPlural: !value.tipoPlural
+        ? this.formatPluralString(this.tipo)
+        : value.tipoPlural,
     };
   }
 
@@ -106,19 +110,21 @@ package ${this.package}.command;
 import ${this.import}.${this.tipo};
     
 public class ${className} {
-      
-    private int index;
+    ${this.lista ? `\n\tprivate int index;` : ""}
     private ${this.tipo} ${this.nome};
       
-    public ${className} (int index, ${this.tipo} ${this.nome}) {
-        this.index = index;
+    public ${className} (${this.lista ? `int index, ` : ""}${this.tipo} ${
+      this.nome
+    }) {${this.lista ? `\n\tthis.index = index;` : ""}
         this.${this.nome} = ${this.nome};
     }
-    
-    public int get(){
+    ${
+      this.lista
+        ? `\n\tpublic int get(){
       return index;
+    }\n`
+        : ""
     }
-
     public ${this.tipo} get${this.tipo}(){
         return ${this.nome};
     }
