@@ -1,0 +1,38 @@
+[
+  {
+    "package": "primori.base.cadastral.component.funcionario",
+    "import": "primori.base.cadastral.domain.funcionario.model",
+    "dono": "Funcionario",
+    "tipo": "Endereco",
+    "lista": false
+  },
+  {
+    "package": "primori.base.cadastral.component.funcionario",
+    "import": "primori.base.cadastral.domain.funcionario.model",
+    "dono": "Funcionario",
+    "nome": "contato",
+    "tipo": "Contato",
+    "lista": false
+  },
+  {
+    "package": "primori.base.cadastral.component.funcionario",
+    "import": "primori.base.cadastral.domain.funcionario.model",
+    "dono": "Funcionario",
+    "tipo": "ClienteAtivo",
+    "lista": true
+  },
+  {
+    "package": "primori.base.cadastral.component.funcionario",
+    "import": "primori.base.cadastral.domain.funcionario.model",
+    "dono": "Funcionario",
+    "tipo": "HistoricoTrabalho",
+    "lista": true
+  },
+  {
+    "package": "primori.base.cadastral.component.funcionario",
+    "import": "primori.base.cadastral.domain.funcionario.model",
+    "dono": "Funcionario",
+    "tipo": "ESocial",
+    "lista": true
+  }
+]
