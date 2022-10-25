@@ -10,7 +10,6 @@
     "package": "primori.base.cadastral.component.funcionario",
     "import": "primori.base.cadastral.domain.funcionario.model",
     "dono": "Funcionario",
-    "nome": "contato",
     "tipo": "Contato",
     "lista": false
   },
