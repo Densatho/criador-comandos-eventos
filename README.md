@@ -1,6 +1,6 @@
 # criador-comandos-eventos
 
-cria comandos apartir de um arquivo chamado dados.json
+cria comandos a partir de um arquivo chamado dados.json localizado na pasta raiz
 
 o json deve conter os seguintes campos:
 
