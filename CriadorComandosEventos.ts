@@ -120,7 +120,7 @@ public class ${className} {
     }
     ${
       this.lista
-        ? `\n\tpublic int get(){
+        ? `\n\tpublic int getIndex(){
       return index;
     }\n`
         : ""
