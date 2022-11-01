@@ -32,6 +32,7 @@
     "import": "primori.base.cadastral.domain.funcionario.model",
     "dono": "Funcionario",
     "tipo": "ESocial",
-    "lista": true
+    "lista": true,
+    "tipoPlural": "ESociais"
   }
 ]
