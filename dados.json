@@ -1,38 +1,31 @@
 [
   {
-    "package": "primori.base.cadastral.component.funcionario",
+    "dono": "UnidadeAtendimento",
+    "package": "primori.base.cadastral.component.unidade",
     "import": "primori.base.cadastral.domain.unidade.model",
-    "dono": "Funcionario",
-    "tipo": "Endereco",
-    "lista": false
-  },
-  {
-    "package": "primori.base.cadastral.component.funcionario",
-    "import": "primori.base.cadastral.domain.funcionario.model",
-    "dono": "Funcionario",
-    "tipo": "Contato",
-    "lista": false
-  },
-  {
-    "package": "primori.base.cadastral.component.funcionario",
-    "import": "primori.base.cadastral.domain.funcionario.model",
-    "dono": "Funcionario",
-    "tipo": "ClienteAtivo",
-    "lista": true
-  },
-  {
-    "package": "primori.base.cadastral.component.funcionario",
-    "import": "primori.base.cadastral.domain.funcionario.model",
-    "dono": "Funcionario",
-    "tipo": "HistoricoTrabalho",
-    "lista": true
-  },
-  {
-    "package": "primori.base.cadastral.component.funcionario",
-    "import": "primori.base.cadastral.domain.funcionario.model",
-    "dono": "Funcionario",
-    "tipo": "ESocial",
-    "lista": true,
-    "tipoPlural": "ESociais"
+    "fields": [
+      {
+        "tipo": "UnidadeDadosCadastrais"
+      },
+      {
+        "tipo": "Endereco"
+      },
+      {
+        "tipo": "Nfse"
+      },
+      {
+        "tipo": "Preco",
+        "lista": true,
+        "tipoPlural": "ListaPrecos"
+      },
+      {
+        "tipo": "HorarioUnidade"
+      },
+      {
+        "tipo": "DiaExclusao",
+        "lista": true,
+        "tipoPlural": "DiasExclusao"
+      }
+    ]
   }
 ]

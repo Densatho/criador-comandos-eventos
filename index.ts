@@ -1,8 +1,7 @@
-import data from "./dados.json";
-import CriadorComandosEventos from "./CriadorComandosEventos";
+import CriadorComponent, { Component } from "./CriadorComponent";
+import dados from "./dados.json";
 
-data.forEach((value) => {
-  const criador = new CriadorComandosEventos(value);
+dados.forEach((value) => {
+  const criador = new CriadorComponent(value as Component);
   console.log(criador);
-  criador.create();
 });

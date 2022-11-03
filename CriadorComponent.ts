@@ -3,7 +3,7 @@ import fs from "fs";
 export interface Field {
   import?: string;
   tipo: string;
-  lista: boolean;
+  lista?: boolean;
   tipoPlural?: string;
 }
 
@@ -511,12 +511,12 @@ ${eventos}}`;
     let fieldsBuilder: string = "";
     let fieldsBuilderMetodo: string = "";
     let constructorFields: string = "";
+    let dadosCadastrais: string = "";
+    let comandosMetodos: string = "";
 
     Object.entries(this.fields).map((field) => {
       if (!field[1] && !field[0].includes("DadosCadastrais")) {
-        fields += `\t\tprivate ${field[0]} ${this.formatNameString(
-          field[0]
-        )};\n`;
+        fields += this.fieldsAggregate(field[0]);
 
         fieldsBuilder += `\t\t\t\tprivate ${field[0]} ${this.formatNameString(
           field[0]
@@ -533,8 +533,36 @@ ${eventos}}`;
         constructorFields += `\t\t\t\t${this.formatNameString(
           field[0]
         )} = builder.${this.formatNameString(field[0])};\n`;
+
+        comandosMetodos += this.criarMetodoAggregate(
+          dispatcher,
+          id,
+          field[0],
+          this.formatNameString(field[0])
+        );
+
+        comandosMetodos += this.atualizarMetodoAggregate(
+          dispatcher,
+          id,
+          field[0],
+          this.formatNameString(field[0])
+        );
+
+        comandosMetodos += this.removerMetodoAggregate(
+          dispatcher,
+          id,
+          field[0],
+          this.formatNameString(field[0])
+        );
+
+        comandosMetodos += this.obterMetodoAggregate(
+          field[0],
+          this.formatNameString(field[0])
+        );
       } else if (field[0].includes("DadosCadastrais")) {
-        fields += `\t\tprivate ${field[0]} dadosCadastrais;\n`;
+        dadosCadastrais = field[0];
+
+        fields += this.fieldDadosCadastraisAggregate(dadosCadastrais);
 
         fieldsBuilder += `\t\t\t\tprivate ${field[0]} dadosCadastrais;\n`;
 
@@ -548,9 +576,10 @@ ${eventos}}`;
 
         constructorFields += `\t\t\t\tdadosCadastrais = builder.dadosCadastrais;\n`;
       } else {
-        fields += `\t\tprivate List<${field[0]}> ${this.formatNameString(
-          field[1] as string
-        )} = Collections.emptyList();\n`;
+        fields += this.fieldsListaAggregate(
+          field[0],
+          this.formatNameString(field[1] as string)
+        );
 
         fieldsBuilder += `\t\t\t\tprivate List<${
           field[0]
@@ -571,8 +600,72 @@ ${eventos}}`;
         constructorFields += `\t\t\t\t${this.formatNameString(
           field[1] as string
         )} = builder.${this.formatNameString(field[1] as string)};\n`;
+
+        comandosMetodos += this.adicionarMetodoAggregate(
+          dispatcher,
+          id,
+          field[0],
+          this.formatNameString(field[0]),
+          this.formatNameString(field[1] as string)
+        );
+
+        comandosMetodos += this.adicionarTodosMetodoAggregate(
+          dispatcher,
+          id,
+          field[0],
+          this.formatNameString(field[0]),
+          field[1] as string
+        );
+
+        comandosMetodos += this.atualizarItemMetodoAggregate(
+          dispatcher,
+          id,
+          field[0],
+          this.formatNameString(field[0]),
+          this.formatNameString(field[1] as string)
+        );
+
+        comandosMetodos += this.atualizarTodosMetodoAggregate(
+          dispatcher,
+          id,
+          field[0],
+          this.formatNameString(field[0]),
+          field[1] as string
+        );
+
+        comandosMetodos += this.removerItemMetodoAggregate(
+          dispatcher,
+          id,
+          field[0],
+          this.formatNameString(field[0]),
+          this.formatNameString(field[1] as string)
+        );
+
+        comandosMetodos += this.removerTodosMetodoAggregate(
+          dispatcher,
+          id,
+          field[0],
+          this.formatNameString(field[0]),
+          field[1] as string
+        );
+
+        comandosMetodos += this.obterItemMetodoAggregate(
+          field[0],
+          this.formatNameString(field[1] as string)
+        );
+
+        comandosMetodos += this.obterTodosMetodoAggregate(
+          field[0],
+          field[1] as string
+        );
       }
     });
+
+    comandos = comandos.substring(0, comandos.length - 1);
+    eventos = eventos.substring(0, eventos.length - 1);
+    models = models.substring(0, models.length - 1);
+    fields = fields.substring(4);
+    comandosMetodos = comandosMetodos.substring(0, comandosMetodos.length - 1);
 
     let str: string = `
 package ${this.package}.aggregate;
@@ -584,15 +677,18 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;\n`
 }
-${comandos}${eventos}import ${this.package}.event.${dispatcher};
-${models}import userviceframework.aggregate.AggregateRoot;
+${comandos}
+${eventos}
+import ${this.package}.event.${dispatcher};
+${models}
+import userviceframework.aggregate.AggregateRoot;
 import userviceframework.aggregate.command.CommandHandler;
 
 @AggregateRoot
 public class ${className} {
 
     private String ${id};
-${fields}
+    ${fields}
     public static class ${classBuilder}() {
 
         private String ${id};
@@ -609,15 +705,300 @@ ${fieldsBuilderMetodo}\t\t\t\tpublic ${className} build(){
     }
 
     public static ${classBuilder} builder() {
-        return new ${classBuilder}(this);
+        return new ${classBuilder}();
     }
 
     public ${className}(${classBuilder} builder) {
         ${id} = builder.${id};
-${constructorFields}\t\t}
+${constructorFields}
+    }
+    ${
+      !dadosCadastrais
+        ? ""
+        : `
+    @CommandHandler
+    public static final ${className} criar${this.dono}(final Criar${this.dono}Command command) {
+        criar${this.dono}(command.get${this.dono}Id(), command.getDadosCadastrais());
+    }
+    
+    public static final ${className} criar${this.dono}(final String ${id}, ${dadosCadastrais} dadosCadastrais) {
+        ${className} aggregate = builder().with${this.dono}Id(${id}).withDadosCadastrais(dadosCadastrais).build(); 
+        ${dispatcher}.dispatcher(aggregate).notifyEvent(new ${this.dono}CriadoEvent(${id}, dadosCadastrais));
+        return aggregate;
+    }
+    
+    @CommandHandler
+    public void atualizarDadosCadastrais(final AtualizarDadosCadastraisCommand commnad) {
+        atualizarDadosCadastrais(command.getDadosCadastrais());
+    }
+    
+    public void atualizarDadosCadastrais(final ${dadosCadastrais} dadosCadastrais) {
+        this.dadosCadastrais = dadosCadastrais;
+        ${dispatcher}.dispatcher(this).notifyEvent(new DadosCadastraisAtualizadoEvent(${id}, dadosCadastrais));
+    }
+    
+    public final ${dadosCadastrais} obterDadosCadastrais() {
+        return dadosCadastrais;
+    }`
+    }
+    
+    public final String obter${this.dono}Id() {
+        return ${id};
+    }
+
+${comandosMetodos}
 }`;
 
     this.write("aggregate", str, className);
+  }
+
+  private fieldsAggregate(field: string): string {
+    const nameField = this.formatNameString(field);
+
+    let str = `
+    private ${field} ${nameField};
+`;
+
+    return str.slice(1);
+  }
+
+  private fieldDadosCadastraisAggregate(field: string): string {
+    let str = `
+    private ${field} dadosCadastrais;
+`;
+
+    return str.slice(1);
+  }
+
+  private fieldsListaAggregate(field: string, nameField: string): string {
+    let str = `
+    private List<${field}> ${nameField} = Collections.emptyList();
+`;
+
+    return str.slice(1);
+  }
+
+  private criarMetodoAggregate(
+    dispatcher: string,
+    id: string,
+    field: string,
+    fieldName: string
+  ): string {
+    let str = `
+    @CommandHandler
+    public void criar${field}(Criar${field}Command command) {
+      criar${field}(command.get${field}());
+    }
+    
+    public void criar${field}(${field} ${fieldName}) {
+      this.${fieldName} = ${fieldName};
+      ${dispatcher}.dispatcher(this).notifyEvent(new ${field}CriadoEvent(${id}, ${fieldName}));
+    }\n\n`;
+
+    return str.slice(1);
+  }
+
+  private adicionarMetodoAggregate(
+    dispatcher: string,
+    id: string,
+    field: string,
+    fieldName: string,
+    name: string
+  ): string {
+    let str = `
+    @CommandHandler
+    public void adicionar${field}(Adicionar${field}Command command) {
+      adicionar${field}(command.get${field}());
+    }
+    
+    public void adicionar${field}(${field} ${fieldName}) {
+      ${name}.add(${fieldName});
+      ${dispatcher}.dispatcher(this).notifyEvent(new ${field}AdicionadoEvent(${id}, ${fieldName}));
+    }\n\n`;
+
+    return str.slice(1);
+  }
+
+  private adicionarTodosMetodoAggregate(
+    dispatcher: string,
+    id: string,
+    field: string,
+    fieldName: string,
+    name: string
+  ): string {
+    const nameVar = this.formatNameString(name);
+
+    let str = `
+    @CommandHandler
+    public void adicionar${name}(Adicionar${name}Command command) {
+      adicionar${name}(command.get${fieldName}());
+    }
+    
+    public void adicionar${name}(Collection<${field}> ${nameVar}) {
+      this.${nameVar}.addAll(${nameVar});
+      ${dispatcher}.dispatcher(this).notifyEvent(new ${name}AdicionadosEvent(${id}, ${nameVar}));
+    }\n\n`;
+
+    return str.slice(1);
+  }
+
+  private atualizarMetodoAggregate(
+    dispatcher: string,
+    id: string,
+    field: string,
+    fieldName: string
+  ): string {
+    let str = `
+    @CommandHandler
+    public void atualizar${field}(Atualizar${field}Command command) {
+      atualizar${field}(command.get${field}());
+    }
+    
+    public void atualizar${field}(${field} ${fieldName}) {
+      this.${fieldName} = ${fieldName};
+      ${dispatcher}.dispatcher(this).notifyEvent(new ${field}AtualizadoEvent(${id}, ${fieldName}));
+    }\n\n`;
+
+    return str.slice(1);
+  }
+
+  private atualizarItemMetodoAggregate(
+    dispatcher: string,
+    id: string,
+    field: string,
+    fieldName: string,
+    name: string
+  ): string {
+    let str = `
+    @CommandHandler
+    public void atualizar${field}(Atualizar${field}Command command) {
+      atualizar${field}(command.getIndex(), command.get${field}());
+    }
+    
+    public void atualizar${field}(int index, ${field} ${fieldName}) {
+      ${name}.set(index, ${fieldName});
+      ${dispatcher}.dispatcher(this).notifyEvent(new ${field}AtualizadoEvent(${id}, ${fieldName}));
+    }\n\n`;
+
+    return str.slice(1);
+  }
+
+  private atualizarTodosMetodoAggregate(
+    dispatcher: string,
+    id: string,
+    field: string,
+    fieldName: string,
+    name: string
+  ): string {
+    const nameVar = this.formatNameString(name);
+
+    let str = `
+    @CommandHandler
+    public void atualizar${name}(atualizar${name}Command command) {
+      atualizar${name}(command.get${name}());
+    }
+    
+    public void atualizar${name}(Collection<${field}> ${nameVar}) {
+      this.${nameVar} = new ArrayList<>(${nameVar});
+      ${dispatcher}.dispatcher(this).notifyEvent(new ${name}AtualizadosEvent(${id}, ${nameVar}));
+    }\n\n`;
+
+    return str.slice(1);
+  }
+
+  private removerMetodoAggregate(
+    dispatcher: string,
+    id: string,
+    field: string,
+    fieldName: string
+  ): string {
+    let str = `
+    @CommandHandler
+    public void remover${field}(Remover${field}Command command) {
+      remover${field}();
+    }
+    
+    public void remover${field}() {
+      ${field} ${fieldName} = this.${fieldName};
+      this.${fieldName} = null;
+      ${dispatcher}.dispatcher(this).notifyEvent(new ${field}RemovidoEvent(${id}, ${fieldName}));
+    }\n\n`;
+
+    return str.slice(1);
+  }
+
+  private removerItemMetodoAggregate(
+    dispatcher: string,
+    id: string,
+    field: string,
+    fieldName: string,
+    name: string
+  ): string {
+    let str = `
+    @CommandHandler
+    public void remover${field}(Remover${field}Command command) {
+      remover${field}(command.getIndex());
+    }
+    
+    public void remover${field}(int index) {
+      ${field} ${fieldName} = ${name}.remove(index);
+      ${dispatcher}.dispatcher(this).notifyEvent(new ${field}RemovidoEvent(${id}, ${fieldName}));
+    }\n\n`;
+
+    return str.slice(1);
+  }
+
+  private removerTodosMetodoAggregate(
+    dispatcher: string,
+    id: string,
+    field: string,
+    fieldName: string,
+    name: string
+  ): string {
+    const nameVar = this.formatNameString(name);
+
+    let str = `
+    @CommandHandler
+    public void remover${name}(Remover${name}Command command) {
+      remover${fieldName}();
+    }
+    
+    public void remover${name}() {
+      List<${field}> ${nameVar} = this.${nameVar};
+      this.${nameVar} = new ArrayList<>();
+      ${dispatcher}.dispatcher(this).notifyEvent(new ${name}RemovidosEvent(${id}, ${nameVar}));
+    }\n\n`;
+
+    return str.slice(1);
+  }
+
+  private obterMetodoAggregate(field: string, fieldName: string): string {
+    let str = `
+    public final ${field} get${field}() {
+      return ${fieldName};
+    }\n\n`;
+
+    return str.slice(1);
+  }
+
+  private obterItemMetodoAggregate(field: string, name: string): string {
+    let str = `
+    public final ${field} get${field}(int index) {
+      return ${name}.get(index);
+    }\n\n`;
+
+    return str.slice(1);
+  }
+
+  private obterTodosMetodoAggregate(field: string, name: string): string {
+    const nameVar = this.formatNameString(name);
+
+    let str = `
+    public final List<${field}> get${name}() {
+      return Collections.unmodifiableList(${nameVar});
+    }\n\n`;
+
+    return str.slice(1);
   }
 
   private write(local: string, str: string, className: string) {
