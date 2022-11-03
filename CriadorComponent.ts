@@ -103,14 +103,14 @@ export default class CriadorComponent {
     let str: string = `
 package ${this.package}.command;
 
-import ${field.import}.${field.tipo};
+import ${this.import}.${field.tipo};
     
 public class ${className} {
       
     private String ${id};
     private ${field.tipo} ${nome};
       
-    public ${className} (String ${id} ,${field.tipo} ${nome}) {
+    public ${className} (String ${id}, ${field.tipo} ${nome}) {
         this.${id} = ${id};
         this.${nome} = ${nome};
     }
@@ -119,7 +119,7 @@ public class ${className} {
         return ${id};
     }
 
-    public ${field.tipo} get${field.tipo}(){
+    public ${field.tipo} getDadosCadastrais(){
         return ${nome};
     }
 }`;
@@ -135,9 +135,9 @@ public class ${className} {
     const className = `${this.dono}CriadoEvent`;
 
     let str: string = `
-package ${this.package}.command;
+package ${this.package}.event;
 
-import ${field.import}.${field.tipo};
+import ${this.import}.${field.tipo};
     
 public class ${className} {
       
@@ -153,7 +153,7 @@ public class ${className} {
         return ${id};
     }
 
-    public ${field.tipo} get${field.tipo}(){
+    public ${field.tipo} getDadosCadastrais(){
         return ${nome};
     }
 }`;
@@ -464,7 +464,7 @@ public class ${className} {
     let str: string = `
 package ${this.package}.event;
 
-import ${this.import}.aggregate.${aggregate};
+import ${this.package}.aggregate.${aggregate};
     
 public class ${className} {
       
@@ -482,7 +482,7 @@ ${eventos}}`;
   private criarAggregate() {
     const className = `${this.dono}Aggregate`;
     const classBuilder = `${this.dono}Builder`;
-    const dispatcher = `${this.dono}dispatcher`;
+    const dispatcher = `${this.dono}Dispatcher`;
     const id = this.formatNameString(this.dono) + "Id";
 
     let comandos: string = "";
@@ -528,6 +528,7 @@ ${eventos}}`;
 \t\t\t\t\t\tthis.${this.formatNameString(field[0])} = ${this.formatNameString(
           field[0]
         )};
+        return this;
 \t\t\t\t}\n\n`;
 
         constructorFields += `\t\t\t\t${this.formatNameString(
@@ -572,6 +573,7 @@ ${eventos}}`;
 \t\t\t\t\t\tthis.${this.formatNameString(field[0])} = ${this.formatNameString(
           field[0]
         )};
+        return this;
 \t\t\t\t}\n\n`;
 
         constructorFields += `\t\t\t\tdadosCadastrais = builder.dadosCadastrais;\n`;
@@ -595,6 +597,7 @@ ${eventos}}`;
 \t\t\t\t\t\tthis.${this.formatNameString(
           field[1] as string
         )} = new ArrayList<>(${this.formatNameString(field[1] as string)});
+        return this;
 \t\t\t\t}\n\n`;
 
         constructorFields += `\t\t\t\t${this.formatNameString(
@@ -689,7 +692,7 @@ public class ${className} {
 
     private String ${id};
     ${fields}
-    public static class ${classBuilder}() {
+    public static class ${classBuilder} {
 
         private String ${id};
 ${fieldsBuilder}
@@ -697,6 +700,7 @@ ${fieldsBuilder}
 
         public ${classBuilder} with${this.dono}Id(String ${id}){
             this.${id} = ${id};
+            return this;
         }
 
 ${fieldsBuilderMetodo}\t\t\t\tpublic ${className} build(){
@@ -718,7 +722,7 @@ ${constructorFields}
         : `
     @CommandHandler
     public static final ${className} criar${this.dono}(final Criar${this.dono}Command command) {
-        criar${this.dono}(command.get${this.dono}Id(), command.getDadosCadastrais());
+        return criar${this.dono}(command.get${this.dono}Id(), command.getDadosCadastrais());
     }
     
     public static final ${className} criar${this.dono}(final String ${id}, ${dadosCadastrais} dadosCadastrais) {
@@ -728,7 +732,7 @@ ${constructorFields}
     }
     
     @CommandHandler
-    public void atualizarDadosCadastrais(final AtualizarDadosCadastraisCommand commnad) {
+    public void atualizarDadosCadastrais(final AtualizarDadosCadastraisCommand command) {
         atualizarDadosCadastrais(command.getDadosCadastrais());
     }
     
@@ -786,7 +790,7 @@ ${comandosMetodos}
   ): string {
     let str = `
     @CommandHandler
-    public void criar${field}(Criar${field}Command command) {
+    public void criar${field}(Criar${field}${this.dono}Command command) {
       criar${field}(command.get${field}());
     }
     
@@ -807,7 +811,7 @@ ${comandosMetodos}
   ): string {
     let str = `
     @CommandHandler
-    public void adicionar${field}(Adicionar${field}Command command) {
+    public void adicionar${field}(Adicionar${field}${this.dono}Command command) {
       adicionar${field}(command.get${field}());
     }
     
@@ -830,7 +834,7 @@ ${comandosMetodos}
 
     let str = `
     @CommandHandler
-    public void adicionar${name}(Adicionar${name}Command command) {
+    public void adicionar${name}(Adicionar${name}${this.dono}Command command) {
       adicionar${name}(command.get${fieldName}());
     }
     
@@ -850,7 +854,7 @@ ${comandosMetodos}
   ): string {
     let str = `
     @CommandHandler
-    public void atualizar${field}(Atualizar${field}Command command) {
+    public void atualizar${field}(Atualizar${field}${this.dono}Command command) {
       atualizar${field}(command.get${field}());
     }
     
@@ -871,7 +875,7 @@ ${comandosMetodos}
   ): string {
     let str = `
     @CommandHandler
-    public void atualizar${field}(Atualizar${field}Command command) {
+    public void atualizar${field}(Atualizar${field}${this.dono}Command command) {
       atualizar${field}(command.getIndex(), command.get${field}());
     }
     
@@ -894,7 +898,7 @@ ${comandosMetodos}
 
     let str = `
     @CommandHandler
-    public void atualizar${name}(atualizar${name}Command command) {
+    public void atualizar${name}(atualizar${name}${this.dono}Command command) {
       atualizar${name}(command.get${name}());
     }
     
@@ -914,7 +918,7 @@ ${comandosMetodos}
   ): string {
     let str = `
     @CommandHandler
-    public void remover${field}(Remover${field}Command command) {
+    public void remover${field}(Remover${field}${this.dono}Command command) {
       remover${field}();
     }
     
@@ -936,7 +940,7 @@ ${comandosMetodos}
   ): string {
     let str = `
     @CommandHandler
-    public void remover${field}(Remover${field}Command command) {
+    public void remover${field}(Remover${field}${this.dono}Command command) {
       remover${field}(command.getIndex());
     }
     
@@ -959,7 +963,7 @@ ${comandosMetodos}
 
     let str = `
     @CommandHandler
-    public void remover${name}(Remover${name}Command command) {
+    public void remover${name}(Remover${name}${this.dono}Command command) {
       remover${fieldName}();
     }
     
