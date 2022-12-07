@@ -1,7 +1,8 @@
 [
   {
     "dono": "UnidadeAtendimento",
-    "package": "primori.base.cadastral.component.unidade",
+    "pacoteComponent": "primori.base.cadastral.component.unidade",
+    "pacoteData": "primori.base.cadastral.data.unidade",
     "import": "primori.base.cadastral.domain.unidade.model",
     "fields": [
       {
@@ -16,15 +17,17 @@
       {
         "tipo": "Preco",
         "lista": true,
-        "tipoPlural": "ListaPrecos"
+        "nomePlural": "ListaPrecos"
       },
       {
-        "tipo": "HorarioUnidade"
+        "tipo": "HorarioUnidade",
+        "lista": true,
+        "nomePlural": "HorariosUnidade"
       },
       {
         "tipo": "DiaExclusao",
         "lista": true,
-        "tipoPlural": "DiasExclusao"
+        "nomePlural": "DiasExclusao"
       }
     ]
   }
